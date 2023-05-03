@@ -1,0 +1,34 @@
+<?php
+
+namespace Lab2view\Generator;
+
+use App\Models\User;
+use Illuminate\Auth\Access\HandlesAuthorization;
+
+abstract class BasePolicy
+{
+    use HandlesAuthorization;
+
+    public abstract function getModelName(): string;
+
+    public function before(?User $user, string $ability): ?bool
+    {
+        return $user?->isSuperAdmin() ?? null;
+    }
+
+    /**
+     * Determine whether the user can view any models.
+     */
+    public function viewAny(?User $user): bool
+    {
+        return true;
+    }
+
+    /**
+     * Determine whether the user can create models.
+     */
+    public function create(User $user): bool
+    {
+        return true;
+    }
+}

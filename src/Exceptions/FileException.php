@@ -1,0 +1,13 @@
+<?php
+
+namespace Lab2view\Generator\Exceptions;
+
+use Exception;
+
+class FileException extends Exception
+{
+    public static function notWritableDirectory($directory): self
+    {
+        return new static('Not writable directory, check permissions: ' . $directory);
+    }
+}
