@@ -417,9 +417,9 @@ class Generate extends Command
             );
 
             $basePolicyPath = $this->directories['policies'] . config('core-generator.base_policy_file');
-            if (Storage::fileExists($basePolicyPath)) {
+//            if (Storage::fileExists($basePolicyPath)) {
                 Storage::copy('../../BasePolicy.php', $basePolicyPath);
-            }
+//            }
 
             if (in_array($policyFile, $existingPolicyFiles)) {
                 if ($this->override) {
