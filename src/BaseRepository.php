@@ -38,7 +38,7 @@ abstract class BaseRepository implements RepositoryInterface
                 ->allowedIncludes($this->config['includes'])
                 ->allowedSorts($this->config['sorts']);
 
-            $columns = $this->getColumnsFromQueries($queries);
+            $columns = $this->getSelectedAttributes($queries);
             if ($paginate) {
                 return $query->paginate((int) $queries['paginate'], $columns)
                     ->appends($queries);
@@ -189,16 +189,20 @@ abstract class BaseRepository implements RepositoryInterface
      * @param  array<string>  $queries
      * @return array<string>
      */
-    private function getColumnsFromQueries(array $queries): array
+    private function getSelectedAttributes(array $queries): array
     {
-        $queries = Arr::get($queries, config('lab2view-generator.request_query_attribute'));
+        $queries = Arr::get($queries, config('lab2view-generator.request_query_attribute', 'attributes'));
         if (is_string($queries)) {
             $queries = explode(',', $queries);
         }
 
+        if (is_array($queries) && count($this->model->getFillable()) > 0) {
+            $queries = Arr::where($queries, fn ($value) => in_array($value, $this->model->getFillable()));
+            if (count($queries) == 0) {
+                $queries = null;
+            }
+        }
 
-        return ($queries != null)
-            ? Arr::where($queries, fn ($value, $key) => Arr::has($this->model->getFillable(), $value))
-            : ['*'];
+        return $queries != null ? Arr::prepend($queries, $this->model->getKeyName()) : ['*'];
     }
 }
