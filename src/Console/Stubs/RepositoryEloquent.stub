@@ -9,12 +9,11 @@ class {{ repository }} extends {{ base_repository }} implements {{ model }}Repos
 {
     public function __construct({{ model }} $model)
     {
-        parent::__construct($model);
-        $this->config = [
+        parent::__construct($model, [
             'filters' => [],
             'includes' => [],
             'sorts' => [],
             'relations' => [],
-        ]
+        ]);
     }
 }

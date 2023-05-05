@@ -11,16 +11,17 @@ use Illuminate\Pagination\LengthAwarePaginator;
 abstract class BaseRepository implements RepositoryInterface
 {
     /**
-     * @var array{filters: array<string>, includes: array<string>, sorts: array<string>, relations: array<string>}
+     * @param Model $model
+     * @param array{filters: array<string>, includes: array<string>, sorts: array<string>, relations: array<string>} $config
      */
-    private array $config = [
-        'filters' => [],
-        'includes' => [],
-        'sorts' => [],
-        'relations' => [],
-    ];
-
-    public function __construct(protected Model $model)
+    public function __construct(
+        protected Model $model,
+        protected array $config = [
+            'filters' => [],
+            'includes' => [],
+            'sorts' => [],
+            'relations' => [],
+        ])
     {
     }
 
