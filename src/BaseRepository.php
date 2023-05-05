@@ -12,7 +12,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 abstract class BaseRepository implements RepositoryInterface
 {
     /**
-     * @param array{filters: array<string, mixed>, includes: array<string>, sorts: array<string>, relations: array<string>} $config
+     * @param  array{filters: array<string, mixed>, includes: array<string>, sorts: array<string>, relations: array<string>}  $config
      */
     public function __construct(
         protected Model $model,
@@ -40,7 +40,7 @@ abstract class BaseRepository implements RepositoryInterface
 
             $columns = $this->getColumnsFromQueries($queries);
             if ($paginate) {
-                return $query->paginate((int)$queries['paginate'], $columns)
+                return $query->paginate((int) $queries['paginate'], $columns)
                     ->appends($queries);
             } else {
                 return $query->get($columns);
@@ -55,8 +55,10 @@ abstract class BaseRepository implements RepositoryInterface
      */
     public function allTrashed(): Collection
     {
-        if (method_exists($this->model, 'onlyTrashed'))
+        if (method_exists($this->model, 'onlyTrashed')) {
             return $this->model->onlyTrashed()->get();
+        }
+
         return new Collection([]);
     }
 
@@ -85,8 +87,10 @@ abstract class BaseRepository implements RepositoryInterface
      */
     public function findTrashedById(int|string $modelId): Model
     {
-        if (method_exists($this->model, 'withTrashed'))
+        if (method_exists($this->model, 'withTrashed')) {
             return $this->model->withTrashed()->findOrFail($modelId);
+        }
+
         return $this->getById($modelId);
     }
 
@@ -95,8 +99,9 @@ abstract class BaseRepository implements RepositoryInterface
      */
     public function findOnlyTrashedById(int|string $modelId): Model
     {
-        if (method_exists($this->model, 'onlyTrashed'))
+        if (method_exists($this->model, 'onlyTrashed')) {
             return $this->model->onlyTrashed()->findOrFail($modelId);
+        }
         throw new ModelNotFoundException(__('The trashed model with the specify id it is not found.'));
     }
 
@@ -114,9 +119,9 @@ abstract class BaseRepository implements RepositoryInterface
     public function update(int|string|Model $model, array $payload): ?Model
     {
         if (is_int($model)) {
-            $model = $this->getById((int)$model);
+            $model = $this->getById((int) $model);
         } elseif (is_string($model)) {
-            $model = $this->getById((string)$model);
+            $model = $this->getById((string) $model);
         }
         $model->update($payload);
 
@@ -145,8 +150,9 @@ abstract class BaseRepository implements RepositoryInterface
     public function restoreById(int|string $modelId): bool
     {
         $model = $this->findOnlyTrashedById($modelId);
-        if (method_exists($model, 'restore'))
+        if (method_exists($model, 'restore')) {
             return $model->restore() ?? false;
+        }
 
         return false;
     }
@@ -156,8 +162,10 @@ abstract class BaseRepository implements RepositoryInterface
      */
     public function restore(Model $model): bool
     {
-        if (method_exists($model, 'restore'))
+        if (method_exists($model, 'restore')) {
             return $model->restore() ?? false;
+        }
+
         return false;
     }
 
@@ -178,14 +186,18 @@ abstract class BaseRepository implements RepositoryInterface
     }
 
     /**
-     * @param array<string> $queries
+     * @param  array<string>  $queries
      * @return array<string>
      */
     private function getColumnsFromQueries(array $queries): array
     {
-        $query = Arr::get($queries, 'attributes', ['*']);
-        if (is_string($query))
-            return explode(',', $query);
-        return $query;
+        $queries = Arr::get($queries, config('lab2view-generator.request_query_attribute'));
+        if (is_string($queries)) {
+            $queries = explode(',', $queries);
+        }
+
+        return $queries != null
+            ? array_filter($queries, fn ($query) => Arr::has($this->model->getAttributes(), $query))
+            : ['*'];
     }
 }

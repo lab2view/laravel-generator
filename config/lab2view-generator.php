@@ -4,6 +4,8 @@ return [
 
     'user_model_class' => 'App\\Models\\User',
 
+    'request_query_attribute' => 'attributes',
+
     /*
     |--------------------------------------------------------------------------
     | Directories
