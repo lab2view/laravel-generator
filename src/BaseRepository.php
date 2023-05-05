@@ -27,11 +27,6 @@ abstract class BaseRepository implements RepositoryInterface
     /**
      * @inheritDoc
      */
-    public abstract function setAllowedConfigs(array $config): void;
-
-    /**
-     * @inheritDoc
-     */
     public function all(array|string $queries = [], array $columns = ['*']): Collection|LengthAwarePaginator
     {
         if (is_array($queries)) {
@@ -63,6 +58,18 @@ abstract class BaseRepository implements RepositoryInterface
     public function getById(int $modelId, array $columns = ['*']): Model
     {
         return $this->model->newQuery()->select($columns)->with($this->config['relations'])->findOrFail($modelId);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getByAttribute(string $attribute, string $value, array $columns = ['*']): Model
+    {
+        return $this->model->newQuery()
+            ->where($attribute, $value)
+            ->select($columns)
+            ->with($this->config['relations'])
+            ->firstOrFail();
     }
 
     /**

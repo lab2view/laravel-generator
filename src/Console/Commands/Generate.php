@@ -3,6 +3,7 @@
 namespace Lab2view\Generator\Console\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Storage;
 use Lab2view\Generator\Exceptions\FileException;
 use Lab2view\Generator\Exceptions\StubException;
 
@@ -375,7 +376,6 @@ class Generate extends Command
             '{{ models_namespace }}',
             '{{ model }}',
             '{{ modelVariable }}',
-            '{{ use_statement_for_base_policy }}',
             '{{ base_policy }}'
         ];
 
@@ -386,10 +386,8 @@ class Generate extends Command
             $policyFile = $this->policiesPath($policy . '.php');
 
             // Check main policy file's path to add use
-            $useStatementForPolicy = false;
             if (dirname($policyFile) !== dirname(config('core-generator.base_policy_file'))) {
                 $mainPolicy = config('core-generator.base_policy_class');
-                $useStatementForPolicy = 'use ' . $mainPolicy . ';';
             }
 
             // User Model
@@ -408,7 +406,6 @@ class Generate extends Command
                 $this->namespaces['models'],
                 $model,
                 mb_strtolower($model),
-                $useStatementForPolicy,
                 str_replace('.php', '', config('core-generator.base_policy_file')),
             ];
 
@@ -418,6 +415,11 @@ class Generate extends Command
                 $policyValues,
                 $policyStub
             );
+
+            $basePolicyPath = $this->directories['policies'] . config('core-generator.base_policy_file');
+            if (Storage::fileExists($basePolicyPath)) {
+                Storage::copy(base_path('BasePolicy'), $basePolicyPath);
+            }
 
             if (in_array($policyFile, $existingPolicyFiles)) {
                 if ($this->override) {

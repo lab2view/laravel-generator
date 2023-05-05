@@ -3,7 +3,6 @@ namespace {{ policies_namespace }};
 
 use {{ models_namespace }}\{{ model }};
 {{ use_statement_for_user_model }}
-{{ use_statement_for_base_policy }}
 
 class {{ policy }} extends {{ base_policy }}
 {

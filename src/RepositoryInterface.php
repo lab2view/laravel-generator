@@ -9,12 +9,6 @@ use Illuminate\Pagination\LengthAwarePaginator;
 interface RepositoryInterface
 {
     /**
-     * @param array{filters: array<string>, includes: array<string>, sorts: array<string>, relations: array<string>} $config
-     * @return void
-     */
-    public function setAllowedConfigs(array $config): void;
-
-    /**
      * @param array<string>|string $queries
      * @param array<string>  $columns
      * @return Collection|LengthAwarePaginator
@@ -36,6 +30,14 @@ interface RepositoryInterface
      * @return Model
      */
     public function getById(int $modelId, array $columns = ['*']): Model;
+
+    /**
+     * @param string $attribute
+     * @param string $value
+     * @param array<string> $columns
+     * @return Model
+     */
+    public function getByAttribute(string $attribute, string $value, array $columns = ['*']): Model;
 
     /**
      * Find trashed model by id.

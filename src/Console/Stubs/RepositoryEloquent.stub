@@ -10,25 +10,11 @@ class {{ repository }} extends {{ base_repository }} implements {{ model }}Repos
     public function __construct({{ model }} $model)
     {
         parent::__construct($model);
-    }
-
-    public function getRelations(): array
-    {
-        return [];
-    }
-
-    public function allowedIncludes(): array
-    {
-        return [];
-    }
-
-    public function allowedFilters(): array
-    {
-        return [];
-    }
-
-    public function allowedSorts(): array
-    {
-        return [];
+        $this->config = [
+            'filters' => [],
+            'includes' => [],
+            'sorts' => [],
+            'relations' => [],
+        ]
     }
 }

@@ -61,6 +61,4 @@ return [
     // Only file name of the file because full path can cause errors.
     // We're going to use "policy_directory" config value for it.
     'base_policy_file' => 'BasePolicy.php',
-    // Class name as string
-    'base_policy_class' => \Lab2view\Generator\BasePolicy::class,
 ];
