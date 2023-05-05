@@ -12,7 +12,7 @@ use Spatie\QueryBuilder\QueryBuilder;
 abstract class BaseRepository implements RepositoryInterface
 {
     /**
-     * @param array{filters: array<string>, includes: array<string>, sorts: array<string>, relations: array<string>} $config
+     * @param array{filters: array<string, mixed>, includes: array<string>, sorts: array<string>, relations: array<string>} $config
      */
     public function __construct(
         protected Model $model,
