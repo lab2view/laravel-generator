@@ -28,23 +28,26 @@ abstract class BaseRepository implements RepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function all(array|string $queries = [], array $columns = ['*']): Collection|LengthAwarePaginator
+    public function all(array|string $queries = []): Collection|LengthAwarePaginator
     {
         if (is_array($queries)) {
             $paginate = Arr::get($queries, 'paginate');
+
             $query = QueryBuilder::for(get_class($this->model))
                 ->allowedFilters($this->config['filters'])
                 ->allowedIncludes($this->config['includes'])
                 ->allowedSorts($this->config['sorts']);
+
+            $columns = $this->getColumnsFromQueries($queries);
             if ($paginate) {
-                return $query->paginate((int)$queries['paginate'])
+                return $query->paginate((int)$queries['paginate'], $columns)
                     ->appends($queries);
             } else {
                 return $query->get($columns);
             }
         }
 
-        return $this->model->with($this->config['relations'])->get($columns);
+        return $this->model->with($this->config['relations'])->get();
     }
 
     /**
@@ -172,5 +175,17 @@ abstract class BaseRepository implements RepositoryInterface
     public function forceDelete(Model $model): bool
     {
         return $model->forceDelete() ?? false;
+    }
+
+    /**
+     * @param array<string> $queries
+     * @return array<string>
+     */
+    private function getColumnsFromQueries(array $queries): array
+    {
+        $query = Arr::get($queries, 'attributes', ['*']);
+        if (is_string($query))
+            return explode(',', $query);
+        return $query;
     }
 }
