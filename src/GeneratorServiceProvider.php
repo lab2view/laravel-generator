@@ -13,7 +13,7 @@ class GeneratorServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(
             __DIR__.'/../config/lab2view-generator.php',
-            'core-generator'
+            'lab2view-generator'
         );
         if ($this->app->runningInConsole()) {
             $this->commands([
