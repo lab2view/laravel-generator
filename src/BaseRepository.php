@@ -198,7 +198,7 @@ abstract class BaseRepository implements RepositoryInterface
 
 
         return ($queries != null)
-            ? Arr::where($queries, fn ($value, $key) => Arr::has($this->model->getAttributes(), $value))
+            ? Arr::where($queries, fn ($value, $key) => Arr::has($this->model->getFillable(), $value))
             : ['*'];
     }
 }
