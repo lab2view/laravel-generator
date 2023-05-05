@@ -10,9 +10,8 @@ interface RepositoryInterface
 {
     /**
      * @param  array<string>|string  $queries
-     * @param  array<string>  $columns
      */
-    public function all(array|string $queries = [], array $columns = ['*']): Collection|LengthAwarePaginator;
+    public function all(array|string $queries = []): Collection|LengthAwarePaginator;
 
     /**
      * Get all trashed models.
