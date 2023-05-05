@@ -6,8 +6,8 @@ use Exception;
 
 class FileException extends Exception
 {
-    public static function notWritableDirectory($directory): self
+    public static function notWritableDirectory(string $directory): self
     {
-        return new static('Not writable directory, check permissions: ' . $directory);
+        return new FileException('Not writable directory, check permissions: '.$directory);
     }
 }

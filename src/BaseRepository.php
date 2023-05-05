@@ -4,14 +4,14 @@ namespace Lab2view\Generator;
 
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Spatie\QueryBuilder\QueryBuilder;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 abstract class BaseRepository implements RepositoryInterface
 {
     /**
-     * @param Model $model
      * @param array{filters: array<string>, includes: array<string>, sorts: array<string>, relations: array<string>} $config
      */
     public function __construct(
@@ -26,7 +26,7 @@ abstract class BaseRepository implements RepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function all(array|string $queries = [], array $columns = ['*']): Collection|LengthAwarePaginator
     {
@@ -36,33 +36,37 @@ abstract class BaseRepository implements RepositoryInterface
                 ->allowedFilters($this->config['filters'])
                 ->allowedIncludes($this->config['includes'])
                 ->allowedSorts($this->config['sorts']);
-            if ($paginate)
+            if ($paginate) {
                 return $query->paginate((int)$queries['paginate'])
                     ->appends($queries);
-            else
+            } else {
                 return $query->get($columns);
+            }
         }
+
         return $this->model->with($this->config['relations'])->get($columns);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function allTrashed(): Collection
     {
-        return $this->model->newQuery()->onlyTrashed()->get();
+        if (method_exists($this->model, 'onlyTrashed'))
+            return $this->model->onlyTrashed()->get();
+        return new Collection([]);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function getById(int $modelId, array $columns = ['*']): Model
+    public function getById(int|string $modelId, array $columns = ['*']): Model
     {
         return $this->model->newQuery()->select($columns)->with($this->config['relations'])->findOrFail($modelId);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function getByAttribute(string $attribute, string $value, array $columns = ['*']): Model
     {
@@ -74,23 +78,27 @@ abstract class BaseRepository implements RepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function findTrashedById(int $modelId): Model
+    public function findTrashedById(int|string $modelId): Model
     {
-        return $this->model->newQuery()->withTrashed()->findOrFail($modelId);
+        if (method_exists($this->model, 'withTrashed'))
+            return $this->model->withTrashed()->findOrFail($modelId);
+        return $this->getById($modelId);
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function findOnlyTrashedById(int $modelId): Model
+    public function findOnlyTrashedById(int|string $modelId): Model
     {
-        return $this->model->newQuery()->onlyTrashed()->findOrFail($modelId);
+        if (method_exists($this->model, 'onlyTrashed'))
+            return $this->model->onlyTrashed()->findOrFail($modelId);
+        throw new ModelNotFoundException(__('The trashed model with the specify id it is not found.'));
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function store(array $payload): ?Model
     {
@@ -98,26 +106,30 @@ abstract class BaseRepository implements RepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function update(int|string|Model $model, array $payload): ?Model
     {
-        if (is_int($model) || is_string($model))
-            $model = $this->getById($model);
+        if (is_int($model)) {
+            $model = $this->getById((int)$model);
+        } elseif (is_string($model)) {
+            $model = $this->getById((string)$model);
+        }
         $model->update($payload);
+
         return $model->fresh();
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function destroyById(int $modelId): bool
+    public function destroyById(int|string $modelId): bool
     {
-        return $this->getById($modelId)?->delete() ?? false;
+        return $this->getById($modelId)->delete() ?? false;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function destroy(Model $model): bool
     {
@@ -125,31 +137,37 @@ abstract class BaseRepository implements RepositoryInterface
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
-    public function restoreById(int $modelId): bool
+    public function restoreById(int|string $modelId): bool
     {
-        return $this->findOnlyTrashedById($modelId)?->restore() ?? false;
+        $model = $this->findOnlyTrashedById($modelId);
+        if (method_exists($model, 'restore'))
+            return $model->restore() ?? false;
+
+        return false;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function restore(Model $model): bool
     {
-        return $model->restore() ?? false;
+        if (method_exists($model, 'restore'))
+            return $model->restore() ?? false;
+        return false;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function forceDeleteById(int $modelId): bool
     {
-        return $this->findTrashedById($modelId)?->forceDelete() ?? false;
+        return $this->findTrashedById($modelId)->forceDelete() ?? false;
     }
 
     /**
-     * @inheritDoc
+     * {@inheritDoc}
      */
     public function forceDelete(Model $model): bool
     {

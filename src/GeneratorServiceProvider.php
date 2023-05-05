@@ -8,13 +8,11 @@ class GeneratorServiceProvider extends ServiceProvider
 {
     /**
      * Register services.
-     *
-     * @return void
      */
     public function register(): void
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/lab2view-generator.php',
+            __DIR__.'/../config/lab2view-generator.php',
             'core-generator'
         );
         if ($this->app->runningInConsole()) {
@@ -26,13 +24,11 @@ class GeneratorServiceProvider extends ServiceProvider
 
     /**
      * Bootstrap services.
-     *
-     * @return void
      */
     public function boot(): void
     {
         $this->publishes([
-            __DIR__ . '/../config/lab2view-generator.php' => config_path('lab2view-generator.php'),
+            __DIR__.'/../config/lab2view-generator.php' => config_path('lab2view-generator.php'),
         ]);
     }
 }

@@ -13,10 +13,10 @@ class Generate extends Command
      *
      * @var string
      */
-    protected $signature = "lab2view:generator 
+    protected $signature = 'lab2view:generator 
         {--c|contracts} 
         {--p|policies}
-        {--r|resources}";
+        {--r|resources}';
 
     /**
      * The console command description.
@@ -27,15 +27,28 @@ class Generate extends Command
 
     /**
      * Overriding existing files.
-     *
-     * @var bool
      */
     protected bool $override = false;
+
+    /**
+     * @var array<string>
+     */
     protected array $directories = [];
+
+    /**
+     * @var array<string>
+     */
     protected array $namespaces = [];
+
+    /**
+     * @var array<string>
+     */
     protected array $models = [];
+
     protected bool $hasContracts = false;
+
     protected bool $hasPolicies = false;
+
     protected bool $hasResources = false;
 
     public function __construct()
@@ -47,7 +60,7 @@ class Generate extends Command
             'repositories' => config('core-generator.repositories_directory'),
             'policies' => config('core-generator.policies_directory'),
             'resources' => config('core-generator.resources_directory'),
-            'models' => config('core-generator.models_directory')
+            'models' => config('core-generator.models_directory'),
         ];
 
         $this->namespaces = [
@@ -55,14 +68,13 @@ class Generate extends Command
             'repositories' => config('core-generator.repositories_namespace'),
             'policies' => config('core-generator.policies_namespace'),
             'resources' => config('core-generator.resources_namespace'),
-            'models' => config('core-generator.models_namespace')
+            'models' => config('core-generator.models_namespace'),
         ];
     }
 
     /**
      * Execute the console command.
      *
-     * @return void
      * @throws FileException|StubException
      */
     public function handle(): void
@@ -105,83 +117,67 @@ class Generate extends Command
     /**
      * Get all model names from models directory.
      *
-     * @return array
+     * @return array<int, string>
      */
     private function getModels(): array
     {
-        if (!is_dir($this->directories['models'])) {
+        if (! is_dir($this->directories['models'])) {
             $this->error('The models directory does not exist.');
             exit;
         }
 
-        $models = glob($this->directories['models'] . '*.php');
+        /** @var array<string> $models */
+        $models = glob($this->directories['models'].'*.php');
+
         return str_replace([$this->directories['models'], '.php'], '', $models);
     }
 
     /**
      * Get stub content.
      *
-     * @param $file
-     * @return bool|string
      * @throws StubException
      */
-    private function getStub($file): bool|string
+    private function getStub(string $file): string
     {
-        $stub = __DIR__ . '/../Stubs/' . $file . '.stub';
+        $stub = __DIR__.'/../Stubs/'.$file.'.stub';
         if (file_exists($stub)) {
-            return file_get_contents($stub);
+            return (string) file_get_contents($stub);
         }
         throw StubException::fileNotFound($file);
     }
 
     /**
      * Get contracts path.
-     *
-     * @param null|string $path
-     * @return string
      */
     private function contractsPath(string $path = null): string
     {
-        return $this->directories['contracts'] . DIRECTORY_SEPARATOR . $path;
+        return $this->directories['contracts'].DIRECTORY_SEPARATOR.$path;
     }
 
     /**
      * Get policies path.
-     *
-     * @param null|string $path
-     * @return string
      */
     private function policiesPath(string $path = null): string
     {
-        return $this->directories['policies'] . DIRECTORY_SEPARATOR . $path;
+        return $this->directories['policies'].DIRECTORY_SEPARATOR.$path;
     }
 
     /**
      * Get resources path.
-     *
-     * @param null|string $path
-     * @return string
      */
     private function resourcesPath(string $path = null): string
     {
-        return $this->directories['resources'] . DIRECTORY_SEPARATOR . $path;
+        return $this->directories['resources'].DIRECTORY_SEPARATOR.$path;
     }
 
     /**
      * Get repositories path.
-     *
-     * @param null|string $path
-     * @return string
      */
     private function repositoriesPath(string $path = null): string
     {
-        return $this->directories['repositories'] . DIRECTORY_SEPARATOR . $path;
+        return $this->directories['repositories'].DIRECTORY_SEPARATOR.$path;
     }
 
-    /**
-     * @param string $class
-     * @return string|null
-     */
     public function fileNamespace(string $class): ?string
     {
         if (in_array(mb_strtolower(substr($class, 0, 4)), ['app\\', 'app/'])) {
@@ -197,13 +193,10 @@ class Generate extends Command
 
     /**
      * Get parent path of repository of interface folder.
-     *
-     * @param string $child
-     * @return string
      */
     private function parentPath(string $child): string
     {
-        if (!is_dir($child)) {
+        if (! is_dir($child)) {
             mkdir($child, 0777, true);
         }
 
@@ -212,11 +205,8 @@ class Generate extends Command
 
     /**
      * Generate/override a file.
-     *
-     * @param $file
-     * @param $content
      */
-    private function writeFile($file, $content)
+    private function writeFile(string $file, string $content): void
     {
         file_put_contents($file, $content);
     }
@@ -226,7 +216,7 @@ class Generate extends Command
      *
      * @throws FileException
      */
-    private function checkRepositoriesPermissions()
+    private function checkRepositoriesPermissions(): void
     {
         // Get full path of repository directory.
         $repositoriesPath = $this->repositoriesPath();
@@ -235,12 +225,12 @@ class Generate extends Command
         $repositoryParentPath = $this->parentPath($repositoriesPath);
 
         // Check parent of repository directory is writable.
-        if (!file_exists($repositoriesPath) && !is_writable($repositoryParentPath)) {
+        if (! file_exists($repositoriesPath) && ! is_writable($repositoryParentPath)) {
             throw FileException::notWritableDirectory($repositoryParentPath);
         }
 
         // Check repository directory permissions.
-        if (file_exists($repositoriesPath) && !is_writable($repositoriesPath)) {
+        if (file_exists($repositoriesPath) && ! is_writable($repositoriesPath)) {
             throw FileException::notWritableDirectory($repositoriesPath);
         }
     }
@@ -250,7 +240,7 @@ class Generate extends Command
      *
      * @throws FileException
      */
-    private function checkContractsPermissions()
+    private function checkContractsPermissions(): void
     {
         // Get full path of contracts directory.
         $contractsPath = $this->contractsPath();
@@ -259,12 +249,12 @@ class Generate extends Command
         $contractsParentPath = $this->parentPath($contractsPath);
 
         // Check parent of contracts directory is writable.
-        if (!file_exists($contractsPath) && !is_writable($contractsParentPath)) {
+        if (! file_exists($contractsPath) && ! is_writable($contractsParentPath)) {
             throw FileException::notWritableDirectory($contractsParentPath);
         }
 
         // Check contracts directory permissions.
-        if (file_exists($contractsPath) && !is_writable($contractsPath)) {
+        if (file_exists($contractsPath) && ! is_writable($contractsPath)) {
             throw FileException::notWritableDirectory($contractsPath);
         }
     }
@@ -272,7 +262,7 @@ class Generate extends Command
     /**
      * @throws FileException
      */
-    private function checkPoliciesPermissions()
+    private function checkPoliciesPermissions(): void
     {
         // Get full path of policies directory.
         $policiesPath = $this->policiesPath();
@@ -281,21 +271,20 @@ class Generate extends Command
         $policiesParentPath = $this->parentPath($policiesPath);
 
         // Check parent of policies directory is writable.
-        if (!file_exists($policiesPath) && !is_writable($policiesParentPath)) {
+        if (! file_exists($policiesPath) && ! is_writable($policiesParentPath)) {
             throw FileException::notWritableDirectory($policiesParentPath);
         }
 
         // Check policies' directory permissions.
-        if (file_exists($policiesPath) && !is_writable($policiesPath)) {
+        if (file_exists($policiesPath) && ! is_writable($policiesPath)) {
             throw FileException::notWritableDirectory($policiesPath);
         }
     }
 
-
     /**
      * @throws FileException
      */
-    private function checkResourcesPermissions()
+    private function checkResourcesPermissions(): void
     {
         // Get full path of policies directory.
         $resourcesPath = $this->resourcesPath();
@@ -304,23 +293,19 @@ class Generate extends Command
         $resourcesParentPath = $this->parentPath($resourcesPath);
 
         // Check parent of resources directory is writable.
-        if (!file_exists($resourcesPath) && !is_writable($resourcesParentPath)) {
+        if (! file_exists($resourcesPath) && ! is_writable($resourcesParentPath)) {
             throw FileException::notWritableDirectory($resourcesParentPath);
         }
 
         // Check resources' directory permissions.
-        if (file_exists($resourcesPath) && !is_writable($resourcesPath)) {
+        if (file_exists($resourcesPath) && ! is_writable($resourcesPath)) {
             throw FileException::notWritableDirectory($resourcesPath);
         }
     }
 
-    /**
-     * @param string $folder
-     * @return void
-     */
     private function createFolder(string $folder): void
     {
-        if (!file_exists($folder)) {
+        if (! file_exists($folder)) {
             mkdir($folder);
         }
     }
@@ -328,26 +313,27 @@ class Generate extends Command
     /**
      * Show message and stop script, If there are no model files to work.
      */
-    private function noModelsMessage()
+    private function noModelsMessage(): void
     {
         $this->warn('Repository generator has stopped!');
         $this->line(
             'There are no model files to use in directory: "'
-            . config('core-generator.models_directory')
-            . '"'
+            .config('core-generator.models_directory')
+            .'"'
         );
-        return;
+
     }
 
     /**
      * @throws StubException
      */
-    protected function createPolicies()
+    protected function createPolicies(): void
     {
         // Create policies folder if it's necessary.
         $this->createFolder($this->directories['policies']);
 
         // Get existing policy file names.
+        /** @var array<string> $existingPolicyFiles */
         $existingPolicyFiles = glob($this->policiesPath('*.php'));
 
         // Remove main policy file name from array
@@ -357,7 +343,7 @@ class Generate extends Command
         );
 
         // Ask for overriding, If there are files in policies directory.
-        if (count($existingPolicyFiles) > 0 && !$this->override) {
+        if (count($existingPolicyFiles) > 0 && ! $this->override) {
             if ($this->confirm('Do you want to overwrite the existing policies ? (Yes/No):')) {
                 $this->override = true;
             }
@@ -374,33 +360,30 @@ class Generate extends Command
             '{{ models_namespace }}',
             '{{ model }}',
             '{{ modelVariable }}',
-            '{{ base_policy }}'
+            '{{ base_policy }}',
         ];
 
         // Get stub file templates.
         $basePolicy = config('core-generator.base_policy_file');
-        if (count(glob($this->policiesPath($basePolicy))) == 0) {
-            $this->writeFile($this->policiesPath($basePolicy), $this->getStub('BasePolicy'));
-            $this->info('Creating ' . $basePolicy);
+        /** @var array<string> $files */
+        $files = glob($this->policiesPath($basePolicy));
+        if (count($files) == 0) {
+            $this->writeFile($this->policiesPath($basePolicy), (string) $this->getStub('BasePolicy'));
+            $this->info('Creating '.$basePolicy);
         }
 
         foreach ($this->models as $model) {
-            $policy = $model . 'Policy';
+            $policy = $model.'Policy';
 
             // Current policy file name
-            $policyFile = $this->policiesPath($policy . '.php');
-
-            // Check main policy file's path to add use
-            if (dirname($policyFile) !== dirname(config('core-generator.base_policy_file'))) {
-                $mainPolicy = config('core-generator.base_policy_class');
-            }
+            $policyFile = $this->policiesPath($policy.'.php');
 
             // User Model
             $userClass = config('core-generator.user_model_class');
             $useStatementForUserModel = false;
 
             if (class_exists($userClass)) {
-                $useStatementForUserModel = 'use ' . $userClass . ';';
+                $useStatementForUserModel = 'use '.$userClass.';';
             }
 
             // Fillable policy values for generating real files
@@ -424,11 +407,11 @@ class Generate extends Command
             if (in_array($policyFile, $existingPolicyFiles)) {
                 if ($this->override) {
                     $this->writeFile($policyFile, $policyContent);
-                    $this->info('Overridden policy file: ' . $policy);
+                    $this->info('Overridden policy file: '.$policy);
                 }
             } else {
                 $this->writeFile($policyFile, $policyContent);
-                $this->info('Created policy file: ' . $policy);
+                $this->info('Created policy file: '.$policy);
             }
 
             $this->override = false;
@@ -438,16 +421,17 @@ class Generate extends Command
     /**
      * @throws StubException
      */
-    protected function createResources()
+    protected function createResources(): void
     {
         // Create resources folder if it's necessary.
         $this->createFolder($this->directories['resources']);
 
         // Get existing resource file names.
+        /** @var array<string> $existingResourceFiles */
         $existingResourceFiles = glob($this->resourcesPath('*.php'));
 
         // Ask for overriding, If there are files in resources directory.
-        if (count($existingResourceFiles) > 0 && !$this->override) {
+        if (count($existingResourceFiles) > 0 && ! $this->override) {
             if ($this->confirm('Do you want to overwrite the existing resources ? (Yes/No):')) {
                 $this->override = true;
             }
@@ -459,19 +443,19 @@ class Generate extends Command
         // Policy stub values those should be changed by command.
         $resourceStubValues = [
             '{{ namespace }}',
-            '{{ class }}'
+            '{{ class }}',
         ];
 
         foreach ($this->models as $model) {
-            $resource = $model . 'Resource';
+            $resource = $model.'Resource';
 
             // Current resource file name
-            $resourceFile = $this->resourcesPath($resource . '.php');
+            $resourceFile = $this->resourcesPath($resource.'.php');
 
             // Fillable resource values for generating real files
             $resourceValues = [
                 $this->namespaces['resources'],
-                $resource
+                $resource,
             ];
 
             // Generate body of the policy file
@@ -484,11 +468,11 @@ class Generate extends Command
             if (in_array($resourceFile, $existingResourceFiles)) {
                 if ($this->override) {
                     $this->writeFile($resourceFile, $resourceContent);
-                    $this->info('Overridden resource file: ' . $resource);
+                    $this->info('Overridden resource file: '.$resource);
                 }
             } else {
                 $this->writeFile($resourceFile, $resourceContent);
-                $this->info('Created resource file: ' . $resource);
+                $this->info('Created resource file: '.$resource);
             }
 
             $this->override = false;
@@ -498,12 +482,13 @@ class Generate extends Command
     /**
      * @throws StubException
      */
-    protected function createRepositories()
+    protected function createRepositories(): void
     {
         // Create repositories folder if it's necessary.
         $this->createFolder($this->directories['repositories']);
 
         // Get existing repository file names.
+        /** @var array<string> $existingRepositoryFiles */
         $existingRepositoryFiles = glob($this->repositoriesPath('*.php'));
 
         // Remove main repository file name from array
@@ -513,7 +498,7 @@ class Generate extends Command
         );
 
         // Ask for overriding, If there are files in repositories directory.
-        if (count($existingRepositoryFiles) > 0 && !$this->override) {
+        if (count($existingRepositoryFiles) > 0 && ! $this->override) {
             if ($this->confirm('Do you want to overwrite the existing repositories ? (Yes/No):')) {
                 $this->override = true;
             }
@@ -529,7 +514,7 @@ class Generate extends Command
             '{{ base_repository }}',
             '{{ repository }}',
             '{{ models_namespace }}',
-            '{{ model }}'
+            '{{ model }}',
         ];
 
         if ($this->hasContracts) {
@@ -537,27 +522,27 @@ class Generate extends Command
         }
 
         foreach ($this->models as $model) {
-            $repository = $model . ($this->hasContracts ? 'RepositoryEloquent' : 'Repository');
+            $repository = $model.($this->hasContracts ? 'RepositoryEloquent' : 'Repository');
 
             // Current repository file name
-            $repositoryFile = $this->repositoriesPath($repository . '.php');
+            $repositoryFile = $this->repositoriesPath($repository.'.php');
 
             // Check main repository file's path to add use
             $useStatementForRepository = false;
             if (dirname($repositoryFile) !== dirname(config('core-generator.base_repository_file'))) {
                 $mainRepository = config('core-generator.base_repository_class');
-                $useStatementForRepository = 'use ' . $mainRepository . ';';
+                $useStatementForRepository = 'use '.$mainRepository.';';
             }
 
             // Check main repository file's path to add use
             $useStatementForContract = false;
             if ($this->hasContracts) {
                 // Current repository file name
-                $contractFile = $this->contractsPath($model . 'Repository.php');
+                $contractFile = $this->contractsPath($model.'Repository.php');
 
                 if (is_file($contractFile)) {
                     $mainContract = $this->namespaces['contracts'];
-                    $useStatementForContract = 'use ' . $mainContract . '\\' . $model . 'Repository;';
+                    $useStatementForContract = 'use '.$mainContract.'\\'.$model.'Repository;';
                 }
             }
 
@@ -568,7 +553,7 @@ class Generate extends Command
                 str_replace('.php', '', config('core-generator.base_repository_file')),
                 $repository,
                 $this->namespaces['models'],
-                $model
+                $model,
             ];
 
             if ($this->hasContracts) {
@@ -585,21 +570,17 @@ class Generate extends Command
             if (in_array($repositoryFile, $existingRepositoryFiles)) {
                 if ($this->override) {
                     $this->writeFile($repositoryFile, $repositoryContent);
-                    $this->info('Overridden repository file: ' . $repository);
+                    $this->info('Overridden repository file: '.$repository);
                 }
             } else {
                 $this->writeFile($repositoryFile, $repositoryContent);
-                $this->info('Created repository file: ' . $repository);
+                $this->info('Created repository file: '.$repository);
             }
 
             $this->override = false;
         }
     }
 
-    /**
-     * @param string $namespace
-     * @return string
-     */
     public function generateNamespace(string $namespace): string
     {
         return ucwords(str_replace('/', '\\', $namespace), '\\');
@@ -608,12 +589,13 @@ class Generate extends Command
     /**
      * @throws StubException
      */
-    protected function createContracts()
+    protected function createContracts(): void
     {
         // Create contracts folder if it's necessary.
         $this->createFolder($this->namespaces['contracts']);
 
         // Get existing contract file names.
+        /** @var array<string> $existingContractFiles */
         $existingContractFiles = glob($this->contractsPath('*.php'));
 
         // Remove main contract file name from array
@@ -623,7 +605,7 @@ class Generate extends Command
         );
 
         // Ask for overriding, If there are files in contracts directory.
-        if (count($existingContractFiles) > 0 && !$this->override) {
+        if (count($existingContractFiles) > 0 && ! $this->override) {
             if ($this->confirm('Do you want to overwrite the existing contracts ? (Yes/No):')) {
                 $this->override = true;
             }
@@ -637,20 +619,20 @@ class Generate extends Command
             '{{ use_statement_for_contract }}',
             '{{ contracts_namespace }}',
             '{{ base_contract }}',
-            '{{ contract }}'
+            '{{ contract }}',
         ];
 
         foreach ($this->models as $model) {
-            $contract = $model . 'Repository';
+            $contract = $model.'Repository';
 
             // Current contract file name
-            $contractFile = $this->contractsPath($contract . '.php');
+            $contractFile = $this->contractsPath($contract.'.php');
 
             // Check main contract file's path to add use
             $useStatementForContract = false;
             if (dirname($contractFile) !== dirname(config('core-generator.base_contract_file'))) {
                 $mainContract = config('core-generator.base_contract_interface');
-                $useStatementForContract = 'use ' . $mainContract . ';';
+                $useStatementForContract = 'use '.$mainContract.';';
             }
 
             // Fillable contract values for generating real files
@@ -658,7 +640,7 @@ class Generate extends Command
                 $useStatementForContract ?: '',
                 $this->generateNamespace($this->namespaces['contracts']),
                 str_replace('.php', '', config('core-generator.base_contract_file')),
-                $contract
+                $contract,
             ];
 
             // Generate body of the contract file
@@ -671,11 +653,11 @@ class Generate extends Command
             if (in_array($contractFile, $existingContractFiles)) {
                 if ($this->override) {
                     $this->writeFile($contractFile, $contractContent);
-                    $this->info('Overridden contract file: ' . $contract);
+                    $this->info('Overridden contract file: '.$contract);
                 }
             } else {
                 $this->writeFile($contractFile, $contractContent);
-                $this->info('Created contract file: ' . $contract);
+                $this->info('Created contract file: '.$contract);
             }
 
             $this->override = false;
