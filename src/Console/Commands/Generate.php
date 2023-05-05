@@ -3,7 +3,6 @@
 namespace Lab2view\Generator\Console\Commands;
 
 use Illuminate\Console\Command;
-use Illuminate\Support\Facades\Storage;
 use Lab2view\Generator\Exceptions\FileException;
 use Lab2view\Generator\Exceptions\StubException;
 
@@ -293,7 +292,6 @@ class Generate extends Command
     }
 
 
-
     /**
      * @throws FileException
      */
@@ -379,6 +377,13 @@ class Generate extends Command
             '{{ base_policy }}'
         ];
 
+        // Get stub file templates.
+        $basePolicy = config('core-generator.base_policy_file');
+        if (count(glob($this->policiesPath($basePolicy))) == 0) {
+            $this->writeFile($this->policiesPath($basePolicy), $this->getStub('BasePolicy'));
+            $this->info('Creating ' . $basePolicy);
+        }
+
         foreach ($this->models as $model) {
             $policy = $model . 'Policy';
 
@@ -415,11 +420,6 @@ class Generate extends Command
                 $policyValues,
                 $policyStub
             );
-
-            $basePolicyPath = $this->directories['policies'] . config('core-generator.base_policy_file');
-//            if (Storage::fileExists($basePolicyPath)) {
-                Storage::copy('../../BasePolicy.php', $basePolicyPath);
-//            }
 
             if (in_array($policyFile, $existingPolicyFiles)) {
                 if ($this->override) {
