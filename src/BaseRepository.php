@@ -196,8 +196,9 @@ abstract class BaseRepository implements RepositoryInterface
             $queries = explode(',', $queries);
         }
 
-        return $queries != null
-            ? array_filter($queries, fn ($query) => Arr::has($this->model->getAttributes(), $query))
+
+        return ($queries != null)
+            ? Arr::where($queries, fn ($value, $key) => Arr::has($this->model->getAttributes(), $value))
             : ['*'];
     }
 }
