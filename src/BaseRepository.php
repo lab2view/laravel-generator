@@ -7,12 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
+use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
 abstract class BaseRepository implements RepositoryInterface
 {
     /**
-     * @param  array{filters: array<string, mixed>, includes: array<string>, sorts: array<string>, relations: array<string>}  $config
+     * @param  array{filters: array<string, AllowedFilter>, includes: array<string>, sorts: array<string>, relations: array<string>}  $config
      */
     public function __construct(
         protected Model $model,
