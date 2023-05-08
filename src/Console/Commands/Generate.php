@@ -56,19 +56,19 @@ class Generate extends Command
         parent::__construct();
 
         $this->directories = [
-            'contracts' => config('core-generator.contracts_directory'),
-            'repositories' => config('core-generator.repositories_directory'),
-            'policies' => config('core-generator.policies_directory'),
-            'resources' => config('core-generator.resources_directory'),
-            'models' => config('core-generator.models_directory'),
+            'contracts' => config('lab2view-generator.contracts_directory'),
+            'repositories' => config('lab2view-generator.repositories_directory'),
+            'policies' => config('lab2view-generator.policies_directory'),
+            'resources' => config('lab2view-generator.resources_directory'),
+            'models' => config('lab2view-generator.models_directory'),
         ];
 
         $this->namespaces = [
-            'contracts' => config('core-generator.contracts_namespace'),
-            'repositories' => config('core-generator.repositories_namespace'),
-            'policies' => config('core-generator.policies_namespace'),
-            'resources' => config('core-generator.resources_namespace'),
-            'models' => config('core-generator.models_namespace'),
+            'contracts' => config('lab2view-generator.contracts_namespace'),
+            'repositories' => config('lab2view-generator.repositories_namespace'),
+            'policies' => config('lab2view-generator.policies_namespace'),
+            'resources' => config('lab2view-generator.resources_namespace'),
+            'models' => config('lab2view-generator.models_namespace'),
         ];
     }
 
@@ -318,7 +318,7 @@ class Generate extends Command
         $this->warn('Repository generator has stopped!');
         $this->line(
             'There are no model files to use in directory: "'
-            .config('core-generator.models_directory')
+            .config('lab2view-generator.models_directory')
             .'"'
         );
 
@@ -339,7 +339,7 @@ class Generate extends Command
         // Remove main policy file name from array
         $existingPolicyFiles = array_diff(
             $existingPolicyFiles,
-            [$this->policiesPath(config('core-generator.base_policy_file'))]
+            [$this->policiesPath(config('lab2view-generator.base_policy_file'))]
         );
 
         // Ask for overriding, If there are files in policies directory.
@@ -364,7 +364,7 @@ class Generate extends Command
         ];
 
         // Get stub file templates.
-        $basePolicy = config('core-generator.base_policy_file');
+        $basePolicy = config('lab2view-generator.base_policy_file');
         /** @var array<string> $files */
         $files = glob($this->policiesPath($basePolicy));
         if (count($files) == 0) {
@@ -379,7 +379,7 @@ class Generate extends Command
             $policyFile = $this->policiesPath($policy.'.php');
 
             // User Model
-            $userClass = config('core-generator.user_model_class');
+            $userClass = config('lab2view-generator.user_model_class');
             $useStatementForUserModel = false;
 
             if (class_exists($userClass)) {
@@ -394,7 +394,7 @@ class Generate extends Command
                 $this->namespaces['models'],
                 $model,
                 mb_strtolower($model),
-                str_replace('.php', '', config('core-generator.base_policy_file')),
+                str_replace('.php', '', config('lab2view-generator.base_policy_file')),
             ];
 
             // Generate body of the policy file
@@ -494,7 +494,7 @@ class Generate extends Command
         // Remove main repository file name from array
         $existingRepositoryFiles = array_diff(
             $existingRepositoryFiles,
-            [$this->repositoriesPath(config('core-generator.base_repository_file'))]
+            [$this->repositoriesPath(config('lab2view-generator.base_repository_file'))]
         );
 
         // Ask for overriding, If there are files in repositories directory.
@@ -529,8 +529,8 @@ class Generate extends Command
 
             // Check main repository file's path to add use
             $useStatementForRepository = false;
-            if (dirname($repositoryFile) !== dirname(config('core-generator.base_repository_file'))) {
-                $mainRepository = config('core-generator.base_repository_class');
+            if (dirname($repositoryFile) !== dirname(config('lab2view-generator.base_repository_file'))) {
+                $mainRepository = config('lab2view-generator.base_repository_class');
                 $useStatementForRepository = 'use '.$mainRepository.';';
             }
 
@@ -550,7 +550,7 @@ class Generate extends Command
             $repositoryValues = [
                 $useStatementForRepository ?: '',
                 $this->namespaces['repositories'],
-                str_replace('.php', '', config('core-generator.base_repository_file')),
+                str_replace('.php', '', config('lab2view-generator.base_repository_file')),
                 $repository,
                 $this->namespaces['models'],
                 $model,
@@ -601,7 +601,7 @@ class Generate extends Command
         // Remove main contract file name from array
         $existingContractFiles = array_diff(
             $existingContractFiles,
-            [$this->contractsPath(config('core-generator.base_contract_file'))]
+            [$this->contractsPath(config('lab2view-generator.base_contract_file'))]
         );
 
         // Ask for overriding, If there are files in contracts directory.
@@ -630,8 +630,8 @@ class Generate extends Command
 
             // Check main contract file's path to add use
             $useStatementForContract = false;
-            if (dirname($contractFile) !== dirname(config('core-generator.base_contract_file'))) {
-                $mainContract = config('core-generator.base_contract_interface');
+            if (dirname($contractFile) !== dirname(config('lab2view-generator.base_contract_file'))) {
+                $mainContract = config('lab2view-generator.base_contract_interface');
                 $useStatementForContract = 'use '.$mainContract.';';
             }
 
@@ -639,7 +639,7 @@ class Generate extends Command
             $contractValues = [
                 $useStatementForContract ?: '',
                 $this->generateNamespace($this->namespaces['contracts']),
-                str_replace('.php', '', config('core-generator.base_contract_file')),
+                str_replace('.php', '', config('lab2view-generator.base_contract_file')),
                 $contract,
             ];
 
