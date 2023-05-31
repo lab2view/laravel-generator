@@ -68,7 +68,9 @@ abstract class BaseRepository implements RepositoryInterface
      */
     public function getById(int|string $modelId, array $columns = ['*']): Model
     {
-        return $this->model->newQuery()->select($columns)->with($this->config['relations'])->findOrFail($modelId);
+        $query = QueryBuilder::for(get_class($this->model))
+            ->allowedIncludes($this->config['includes']);
+        return $query->select($columns)->with($this->config['relations'])->findOrFail($modelId);
     }
 
     /**
