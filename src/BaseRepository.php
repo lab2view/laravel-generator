@@ -12,6 +12,8 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 abstract class BaseRepository implements RepositoryInterface
 {
+    private ?string $defaultSort = null;
+
     /**
      * @param  array{filters: array<int, AllowedFilter|string>, includes: array<string>, sorts: array<string>, relations: array<string>}  $config
      */
@@ -36,8 +38,11 @@ abstract class BaseRepository implements RepositoryInterface
 
             $query = QueryBuilder::for(get_class($this->model))
                 ->allowedFilters($this->config['filters'])
-                ->allowedIncludes($this->config['includes'])
+                ->allowedIncludes(array_merge($this->config['includes'], $this->config['relations']))
                 ->allowedSorts($this->config['sorts']);
+            if ($this->defaultSort) {
+                $query = $query->defaultSort($this->defaultSort);
+            }
 
             $columns = $this->getSelectedAttributes($queries);
             if ($paginate) {
@@ -69,7 +74,8 @@ abstract class BaseRepository implements RepositoryInterface
     public function getById(int|string $modelId, array $columns = ['*']): Model
     {
         $query = QueryBuilder::for(get_class($this->model))
-            ->allowedIncludes($this->config['includes']);
+            ->allowedIncludes(array_merge($this->config['includes'], $this->config['relations']));
+
         return $query->select($columns)->with($this->config['relations'])->findOrFail($modelId);
     }
 
@@ -207,5 +213,10 @@ abstract class BaseRepository implements RepositoryInterface
         }
 
         return $queries != null ? Arr::prepend($queries, $this->model->getKeyName()) : ['*'];
+    }
+
+    protected function setDefaultSort(string $defaultSort): void
+    {
+        $this->defaultSort = $defaultSort;
     }
 }

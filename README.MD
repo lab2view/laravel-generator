@@ -1,1 +1,1 @@
-### L2V package generator 1.0.9
+### L2V package generator 1.1.0
