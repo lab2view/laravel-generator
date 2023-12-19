@@ -38,11 +38,13 @@ abstract class BaseRepository implements RepositoryInterface
 
             $query = QueryBuilder::for(get_class($this->model))
                 ->allowedFilters($this->config['filters'])
-                ->allowedIncludes(array_merge($this->config['includes'], $this->config['relations']))
+                ->allowedIncludes($this->config['includes'])
                 ->allowedSorts($this->config['sorts']);
             if ($this->defaultSort) {
                 $query = $query->defaultSort($this->defaultSort);
             }
+
+            $query = $query->with($this->config['relations']);
 
             $columns = $this->getSelectedAttributes($queries);
             if ($paginate) {
@@ -74,7 +76,7 @@ abstract class BaseRepository implements RepositoryInterface
     public function getById(int|string $modelId, array $columns = ['*']): Model
     {
         $query = QueryBuilder::for(get_class($this->model))
-            ->allowedIncludes(array_merge($this->config['includes'], $this->config['relations']));
+            ->allowedIncludes($this->config['includes']);
 
         return $query->select($columns)->with($this->config['relations'])->findOrFail($modelId);
     }
