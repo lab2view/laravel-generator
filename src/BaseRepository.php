@@ -121,7 +121,7 @@ abstract class BaseRepository implements RepositoryInterface
      */
     public function store(array $payload): ?Model
     {
-        return $this->model->newQuery()->create($payload);
+        return $this->model->newQuery()->create($payload)->load($this->config['relations']);
     }
 
     /**
@@ -129,14 +129,12 @@ abstract class BaseRepository implements RepositoryInterface
      */
     public function update(int|string|Model $model, array $payload): ?Model
     {
-        if (is_int($model)) {
-            $model = $this->getById((int) $model);
-        } elseif (is_string($model)) {
-            $model = $this->getById((string) $model);
+        if (is_int($model) || is_string($model)) {
+            $model = $this->getById($model);
         }
         $model->update($payload);
 
-        return $model->fresh();
+        return $model->load($this->config['relations'])->fresh();
     }
 
     /**
