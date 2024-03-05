@@ -134,7 +134,7 @@ abstract class BaseRepository implements RepositoryInterface
         }
         $model->update($payload);
 
-        return $model->load($this->config['relations'])->fresh();
+        return $model->load($this->config['relations'])->refresh();
     }
 
     /**
