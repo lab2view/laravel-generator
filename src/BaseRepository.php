@@ -76,9 +76,14 @@ abstract class BaseRepository implements RepositoryInterface
     public function getById(int|string $modelId, array $columns = ['*']): Model
     {
         $query = QueryBuilder::for(get_class($this->model))
-            ->allowedIncludes($this->config['includes']);
+            ->allowedIncludes($this->config['includes'])
+            ->select($columns);
 
-        return $query->select($columns)->with($this->config['relations'])->findOrFail($modelId);
+        if (count($this->config['relations']) > 0) {
+            $query = $query->with($this->config['relations']);
+        }
+
+        return $query->findOrFail($modelId);
     }
 
     /**
@@ -121,7 +126,12 @@ abstract class BaseRepository implements RepositoryInterface
      */
     public function store(array $payload): ?Model
     {
-        return $this->model->newQuery()->create($payload)->load($this->config['relations']);
+        $model = $this->model->newQuery()->create($payload);
+        if (count($this->config['relations']) > 0) {
+            $model = $model->load($this->config['relations']);
+        }
+
+        return $model;
     }
 
     /**
@@ -134,7 +144,11 @@ abstract class BaseRepository implements RepositoryInterface
         }
         $model->update($payload);
 
-        return $model->load($this->config['relations'])->refresh();
+        if (count($this->config['relations']) > 0) {
+            $model = $model->load($this->config['relations']);
+        }
+
+        return $model->refresh();
     }
 
     /**
@@ -142,7 +156,7 @@ abstract class BaseRepository implements RepositoryInterface
      */
     public function destroyById(int|string $modelId): bool
     {
-        return $this->getById($modelId)->delete() ?? false;
+        return $this->model->newQuery()->where('id', $modelId)->delete() ?? false;
     }
 
     /**

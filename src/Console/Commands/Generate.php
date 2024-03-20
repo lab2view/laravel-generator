@@ -149,7 +149,7 @@ class Generate extends Command
     /**
      * Get contracts path.
      */
-    private function contractsPath(string $path = null): string
+    private function contractsPath(?string $path = null): string
     {
         return $this->directories['contracts'].DIRECTORY_SEPARATOR.$path;
     }
@@ -157,7 +157,7 @@ class Generate extends Command
     /**
      * Get policies path.
      */
-    private function policiesPath(string $path = null): string
+    private function policiesPath(?string $path = null): string
     {
         return $this->directories['policies'].DIRECTORY_SEPARATOR.$path;
     }
@@ -165,7 +165,7 @@ class Generate extends Command
     /**
      * Get resources path.
      */
-    private function resourcesPath(string $path = null): string
+    private function resourcesPath(?string $path = null): string
     {
         return $this->directories['resources'].DIRECTORY_SEPARATOR.$path;
     }
@@ -173,7 +173,7 @@ class Generate extends Command
     /**
      * Get repositories path.
      */
-    private function repositoriesPath(string $path = null): string
+    private function repositoriesPath(?string $path = null): string
     {
         return $this->directories['repositories'].DIRECTORY_SEPARATOR.$path;
     }
