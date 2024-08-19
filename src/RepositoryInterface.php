@@ -45,14 +45,14 @@ interface RepositoryInterface
      *
      * @param  array<string, mixed>  $payload
      */
-    public function store(array $payload): ?Model;
+    public function store(array $payload, bool $quietly = false): ?Model;
 
     /**
      * Update existing model.
      *
      * @param  array<string, mixed>  $payload
      */
-    public function update(int|string|Model $model, array $payload): ?Model;
+    public function update(int|string|Model $model, array $payload, bool $quietly = false): ?Model;
 
     /**
      * Delete model by id.
@@ -62,7 +62,7 @@ interface RepositoryInterface
     /**
      * Delete model.
      */
-    public function destroy(Model $model): bool;
+    public function destroy(Model $model, bool $quietly = false): bool;
 
     /**
      * Restore model by id.
@@ -72,7 +72,7 @@ interface RepositoryInterface
     /**
      * Restore model.
      */
-    public function restore(Model $model): bool;
+    public function restore(Model $model, bool $quietly = false): bool;
 
     /**
      * Permanently delete model by id.
@@ -82,5 +82,5 @@ interface RepositoryInterface
     /**
      * Permanently delete model.
      */
-    public function forceDelete(Model $model): bool;
+    public function forceDelete(Model $model, bool $quietly = false): bool;
 }
