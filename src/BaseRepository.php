@@ -124,10 +124,12 @@ abstract class BaseRepository implements RepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function store(array $payload): ?Model
+    public function store(array $payload, bool $quietly = false): ?Model
     {
-        $model = $this->model->newQuery()->create($payload);
-        if (count($this->config['relations']) > 0) {
+        /** @var Model|null $model */
+        $model = $this->checkWithoutEvents(fn () => $this->model->newQuery()->create($payload), $quietly);
+
+        if ($model && count($this->config['relations']) > 0) {
             $model = $model->load($this->config['relations']);
         }
 
@@ -137,12 +139,12 @@ abstract class BaseRepository implements RepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function update(int|string|Model $model, array $payload): ?Model
+    public function update(int|string|Model $model, array $payload, bool $quietly = false): ?Model
     {
         if (is_int($model) || is_string($model)) {
             $model = $this->getById($model);
         }
-        $model->update($payload);
+        $this->checkWithoutEvents(fn () => $model->update($payload), $quietly);
 
         if (count($this->config['relations']) > 0) {
             $model = $model->load($this->config['relations']);
@@ -154,7 +156,7 @@ abstract class BaseRepository implements RepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function destroyById(int|string $modelId): bool
+    public function destroyById(int|string $modelId, bool $quietly = false): bool
     {
         return $this->model->newQuery()->where('id', $modelId)->delete() ?? false;
     }
@@ -162,9 +164,9 @@ abstract class BaseRepository implements RepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function destroy(Model $model): bool
+    public function destroy(Model $model, bool $quietly = false): bool
     {
-        return $model->delete() ?? false;
+        return $this->checkWithoutEvents(fn () => $model->delete(), $quietly) ?? false;
     }
 
     /**
@@ -183,10 +185,10 @@ abstract class BaseRepository implements RepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function restore(Model $model): bool
+    public function restore(Model $model, bool $quietly = false): bool
     {
         if (method_exists($model, 'restore')) {
-            return $model->restore() ?? false;
+            return $this->checkWithoutEvents(fn () => $model->restore(), $quietly) ?? false;
         }
 
         return false;
@@ -203,9 +205,9 @@ abstract class BaseRepository implements RepositoryInterface
     /**
      * {@inheritDoc}
      */
-    public function forceDelete(Model $model): bool
+    public function forceDelete(Model $model, bool $quietly = false): bool
     {
-        return $model->forceDelete() ?? false;
+        return $this->checkWithoutEvents(fn () => $model->forceDelete(), $quietly) ?? false;
     }
 
     /**
@@ -232,5 +234,17 @@ abstract class BaseRepository implements RepositoryInterface
     protected function setDefaultSort(string $defaultSort): void
     {
         $this->defaultSort = $defaultSort;
+    }
+
+    /**
+     * @param callable $callback
+     * @param bool $quietly
+     * @return mixed
+     */
+    private function checkWithoutEvents(callable $callback, bool $quietly = false): mixed
+    {
+        return $quietly
+        ? Model::withoutEvents($callback)
+        : call_user_func($callback);
     }
 }
