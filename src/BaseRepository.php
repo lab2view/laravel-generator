@@ -244,7 +244,7 @@ abstract class BaseRepository implements RepositoryInterface
     private function checkWithoutEvents(callable $callback, bool $quietly = false): mixed
     {
         return $quietly
-        ? $this->model->withoutEvents($callback)
+        ? Model::withoutEvents($callback)
         : $callback;
     }
 }
