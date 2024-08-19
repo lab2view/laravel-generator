@@ -144,7 +144,7 @@ abstract class BaseRepository implements RepositoryInterface
         if (is_int($model) || is_string($model)) {
             $model = $this->getById($model);
         }
-        $this->checkWithoutEvents(fn () => $model->update(), $quietly);
+        $this->checkWithoutEvents(fn () => $model->update($payload), $quietly);
 
         if (count($this->config['relations']) > 0) {
             $model = $model->load($this->config['relations']);
