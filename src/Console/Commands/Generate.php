@@ -90,21 +90,24 @@ class Generate extends Command
             $this->noModelsMessage();
         }
 
-        if ($this->hasContracts = $this->option('contracts')) {
+        if ($this->option('contracts')) {
+            $this->hasContracts = true;
             // Check contracts folder permissions.
             $this->checkContractsPermissions();
 
             $this->createContracts();
         }
 
-        if ($this->hasPolicies = $this->option('policies')) {
+        if ($this->option('policies')) {
+            $this->hasPolicies = true;
             // Check if policies are required.
             $this->checkPoliciesPermissions();
 
             $this->createPolicies();
         }
 
-        if ($this->hasResources = $this->option('resources')) {
+        if ($this->option('resources')) {
+            $this->hasResources = true;
             // Check if policies are required.
             $this->checkResourcesPermissions();
 
