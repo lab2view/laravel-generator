@@ -245,6 +245,6 @@ abstract class BaseRepository implements RepositoryInterface
     {
         return $quietly
         ? Model::withoutEvents($callback)
-        : $callback;
+        : call_user_func($callback);
     }
 }
