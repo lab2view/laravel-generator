@@ -24,9 +24,7 @@ abstract class BaseRepository implements RepositoryInterface
             'includes' => [],
             'sorts' => [],
             'relations' => [],
-        ])
-    {
-    }
+        ]) {}
 
     /**
      * {@inheritDoc}
@@ -236,11 +234,6 @@ abstract class BaseRepository implements RepositoryInterface
         $this->defaultSort = $defaultSort;
     }
 
-    /**
-     * @param callable $callback
-     * @param bool $quietly
-     * @return mixed
-     */
     private function checkWithoutEvents(callable $callback, bool $quietly = false): mixed
     {
         return $quietly
