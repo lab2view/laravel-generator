@@ -1,1 +1,1 @@
-### L2V package generator 1.1.6
+### L2V package generator 2.0.0 support for laravel 12 
