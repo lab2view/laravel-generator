@@ -10,11 +10,16 @@ use Illuminate\Support\Arr;
 use Spatie\QueryBuilder\AllowedFilter;
 use Spatie\QueryBuilder\QueryBuilder;
 
+/**
+ * @template TModel of Model
+ * @implements RepositoryInterface<TModel>
+ */
 abstract class BaseRepository implements RepositoryInterface
 {
     private ?string $defaultSort = null;
 
     /**
+     * @param  TModel  $model
      * @param  array{filters: array<int, AllowedFilter|string>, includes: array<string>, sorts: array<string>, relations: array<string>}  $config
      */
     public function __construct(
@@ -40,6 +45,11 @@ abstract class BaseRepository implements RepositoryInterface
         return $query;
     }
 
+    /**
+     * @param  mixed  $query
+     * @param  array<string, mixed>  $queries
+     * @return Collection<int, TModel>|LengthAwarePaginator<int, TModel>
+     */
     protected function executeQuery($query, $queries): Collection|LengthAwarePaginator{
         $paginate = Arr::get($queries, 'paginate');
         $columns = $this->getSelectedAttributes($queries);
@@ -53,6 +63,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * {@inheritDoc}
+     * @return Collection<int, TModel>|LengthAwarePaginator<int, TModel>
      */
     public function all(array|string $queries = []): Collection|LengthAwarePaginator
     {
@@ -65,6 +76,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * {@inheritDoc}
+     * @return Collection<int, TModel>
      */
     public function allTrashed(): Collection
     {
@@ -77,6 +89,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * {@inheritDoc}
+     * @return TModel
      */
     public function getById(int|string $modelId, array $columns = ['*']): Model
     {
@@ -93,6 +106,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * {@inheritDoc}
+     * @return TModel
      */
     public function getByAttribute(string $attribute, string $value, array $columns = ['*']): Model
     {
@@ -105,6 +119,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * {@inheritDoc}
+     * @return TModel
      */
     public function findTrashedById(int|string $modelId): Model
     {
@@ -117,6 +132,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * {@inheritDoc}
+     * @return TModel
      */
     public function findOnlyTrashedById(int|string $modelId): Model
     {
@@ -128,10 +144,11 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * {@inheritDoc}
+     * @return TModel|null
      */
     public function store(array $payload, bool $quietly = false): ?Model
     {
-        /** @var Model|null $model */
+        /** @var TModel|null $model */
         $model = $this->checkWithoutEvents(fn () => $this->model->newQuery()->create($payload), $quietly);
 
         if ($model && count($this->config['relations']) > 0) {
@@ -143,6 +160,8 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * {@inheritDoc}
+     * @param  int|string|TModel  $model
+     * @return TModel|null
      */
     public function update(int|string|Model $model, array $payload, bool $quietly = false): ?Model
     {
@@ -168,6 +187,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * {@inheritDoc}
+     * @param  TModel  $model
      */
     public function destroy(Model $model, bool $quietly = false): bool
     {
@@ -189,6 +209,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * {@inheritDoc}
+     * @param  TModel  $model
      */
     public function restore(Model $model, bool $quietly = false): bool
     {
@@ -209,6 +230,7 @@ abstract class BaseRepository implements RepositoryInterface
 
     /**
      * {@inheritDoc}
+     * @param  TModel  $model
      */
     public function forceDelete(Model $model, bool $quietly = false): bool
     {
