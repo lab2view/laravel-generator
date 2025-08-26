@@ -26,31 +26,38 @@ abstract class BaseRepository implements RepositoryInterface
             'relations' => [],
         ]) {}
 
+    protected function getQuery(): QueryBuilder {
+        $query = QueryBuilder::for(get_class($this->model))
+            ->allowedFilters($this->config['filters'])
+            ->allowedIncludes($this->config['includes'])
+            ->allowedSorts($this->config['sorts']);
+        if ($this->defaultSort) {
+            $query = $query->defaultSort($this->defaultSort);
+        }
+
+        $query = $query->with($this->config['relations']);
+    
+        return $query;
+    }
+
+    protected function executeQuery($query, $queries): Collection|LengthAwarePaginator{
+        $paginate = Arr::get($queries, 'paginate');
+        $columns = $this->getSelectedAttributes($queries);
+        if ($paginate) {
+            return $query->paginate((int) $queries['paginate'], $columns)
+                ->appends($queries);
+        } else {
+            return $query->get($columns);
+        }
+    }
+
     /**
      * {@inheritDoc}
      */
     public function all(array|string $queries = []): Collection|LengthAwarePaginator
     {
         if (is_array($queries)) {
-            $paginate = Arr::get($queries, 'paginate');
-
-            $query = QueryBuilder::for(get_class($this->model))
-                ->allowedFilters($this->config['filters'])
-                ->allowedIncludes($this->config['includes'])
-                ->allowedSorts($this->config['sorts']);
-            if ($this->defaultSort) {
-                $query = $query->defaultSort($this->defaultSort);
-            }
-
-            $query = $query->with($this->config['relations']);
-
-            $columns = $this->getSelectedAttributes($queries);
-            if ($paginate) {
-                return $query->paginate((int) $queries['paginate'], $columns)
-                    ->appends($queries);
-            } else {
-                return $query->get($columns);
-            }
+            return $this->executeQuery($this->getQuery(), $queries);
         }
 
         return $this->model->with($this->config['relations'])->get();
