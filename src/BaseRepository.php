@@ -46,11 +46,11 @@ abstract class BaseRepository implements RepositoryInterface
     }
 
     /**
-     * @param  mixed  $query
+     * @param  QueryBuilder  $query
      * @param  array<string, mixed>  $queries
      * @return Collection<int, TModel>|LengthAwarePaginator<int, TModel>
      */
-    protected function executeQuery($query, $queries): Collection|LengthAwarePaginator{
+    protected function executeQuery(QueryBuilder $query, array $queries): Collection|LengthAwarePaginator {
         $paginate = Arr::get($queries, 'paginate');
         $columns = $this->getSelectedAttributes($queries);
         if ($paginate) {
