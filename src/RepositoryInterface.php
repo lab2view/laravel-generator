@@ -41,7 +41,7 @@ interface RepositoryInterface
      * Find trashed model by id.
      * @return TModel
      */
-    public function findTrashedById(int $modelId): Model;
+    public function findTrashedById(int|string $modelId): Model;
 
     /**
      * Find only trashed model by id.
